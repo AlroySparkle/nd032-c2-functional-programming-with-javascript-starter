@@ -1,0 +1,137 @@
+/* -------------------  MOBILE  --------------------- */
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: Arial;
+  min-height: 100vh;
+  background:#99857A
+}
+
+header {
+  /* header styles */
+}
+
+div.buttonContainer{
+	display:flex;
+	width:100%;
+	background:#C2B6AF
+}
+
+div.roverButton{
+	padding: 15px 10px 15px 10px;
+	background:#B8AAA2;
+	cursor:pointer;
+}
+
+div.roverButton:hover{
+	background:#CCC2BD;
+}
+
+div.roverButtonSelected{
+	padding: 15px 10px 15px 10px;
+	background:#AD9D95;
+}
+
+div.roverInfo{
+	background:#AD9D95;
+	padding:10px;
+	padding-left:10%
+}
+
+div.roverPictures{
+	display:grid;
+	gap: 10px;
+	grid-template-columns:90%;
+	
+	
+}
+
+img.roverImage{
+	width:90%;
+	object-fit:contain;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+}
+
+footer {
+  /* footer styles */
+}
+
+/* -------------------  TABLET  --------------------- */
+@media (min-width: 768px) {
+  /* use mobile */
+}
+
+/* -------------------  DESKTOP  -------------------- */
+
+@media (min-width: 1224px) {
+  /* use mobile */
+  
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: Arial;
+  min-height: 100vh;
+  background:#99857A
+}
+
+header {
+  /* header styles */
+}
+
+div.buttonContainer{
+	display:flex;
+	width:100%;
+	background:#C2B6AF
+}
+
+div.roverButton{
+	padding: 15px 10px 15px 10px;
+	background:#B8AAA2;
+	cursor:pointer;
+}
+
+div.roverButton:hover{
+	background:#CCC2BD;
+}
+
+div.roverButtonSelected{
+	padding: 15px 10px 15px 10px;
+	background:#AD9D95;
+}
+
+div.roverInfo{
+	background:#AD9D95;
+	padding:10px;
+	padding-left:10%
+}
+
+div.roverPictures{
+	display:grid;
+	gap: 10px;
+	grid-template-columns:repeat(3, 30%);
+	
+	
+}
+
+img.roverImage{
+	width: 300px;
+    height: 300px;
+	object-fit:contain;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+}
+}
+
+/* -------------------  LARGE SCREENS  -------------- */
+
+@media (min-width: 1824px) {
+  /* use mobile */
+}

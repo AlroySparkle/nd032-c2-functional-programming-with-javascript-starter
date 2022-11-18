@@ -1,0 +1,143 @@
+let store = {
+    user: { name: "Student" },
+    apod: '',
+    rovers: ['Curiosity', 'Opportunity', 'Spirit'],
+    api_key: "SDV9dOd5CA4OteDpjPhpiyYAu3yl1KYfoGMAlYwM"
+}
+
+
+// add our markup to the page
+const root = document.getElementById('root')
+
+const updateStore = (store, newState) => {
+    store = Object.assign(store, newState)
+    render(root, store)
+    return Object.values(newState)[0]
+}
+
+const render = async(root, state) => {
+    root.innerHTML = App(state)
+}
+
+
+// create content
+const App = (state) => {
+    let { rovers, apod } = state
+
+    return `
+        <header></header>
+        <main>
+            ${Greeting(store.user.name)}
+            <section>
+                <h3>Put things on the page!</h3>
+                <p>Here is an example section.</p>
+                <p>
+                    One of the most popular websites at NASA is the Astronomy Picture of the Day. In fact, this website is one of
+                    the most popular websites across all federal agencies. It has the popular appeal of a Justin Bieber video.
+                    This endpoint structures the APOD imagery and associated metadata so that it can be repurposed for other
+                    applications. In addition, if the concept_tags parameter is set to True, then keywords derived from the image
+                    explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds;
+                    but generally help with discoverability of relevant imagery.
+                </p>
+                ${ImageOfTheDay(apod)}
+            </section>
+            <section>
+            <button onClick='getNewestImages(0)'></button>
+                <button onClick='getNewestImages(1)'></button>
+                <button onClick='getNewestImages(2)'></button>
+                <div id="roverInfo">
+                
+                </div>
+            </section>
+        </main>
+        <footer></footer>
+    `
+}
+
+// listening for load event because page should load before any JS is called
+window.addEventListener('load', () => {
+    render(root, store)
+})
+
+// ------------------------------------------------------  COMPONENTS
+
+// This part used to print information related to the rover
+const roverInfoPrint = (rover, images) => {
+    // Create nested functions for images of rover.
+    const createImageGallery = (images, currentIndex = 0, count = 0) => {
+        if (images.length - currentIndex < 1 || count > 10) {
+            return ""
+        }
+        return createImageGallery(images, currentIndex + 1, count + 1) + `<img src="${images.photos[currentIndex].img_src}"/>`
+    }
+
+
+    document.getElementById("roverInfo").innerHTML = `rover "${rover.name}" has been launched in ${rover.launch_date}<br>
+Rover's maximum solar days are ${rover.max_sol} and it has captured ${rover.total_photos} since landing date in ${rover.landing_date}<br>
+rover's last images were in date ${rover.max_date} and it's current status is <b>${rover.status}</b><br>
+rover "${rover.name}" has ${rover.cameras.length} cameras<br>
+some of rover's images:<br>
+${createImageGallery(images,0,0)}
+`
+}
+
+// Pure function that renders conditional information -- THIS IS JUST AN EXAMPLE, you can delete it.
+const Greeting = (name) => {
+    if (name) {
+        return `
+            <h1>Welcome, ${name}!</h1>
+        `
+    }
+
+    return `
+        <h1>Hello!</h1>
+    `
+}
+
+// Example of a pure function that renders infomation requested from the backend
+const ImageOfTheDay = (apod) => {
+
+    // If image does not already exist, or it is not from today -- request it again
+    const today = new Date()
+    const photodate = new Date(apod.date)
+    if (!apod || apod.date === today.getDate()) {
+        getImageOfTheDay(store)
+    }
+
+    // check if the photo of the day is actually type video!
+    if (apod.media_type === "video") {
+        return (`
+            <p>See today's featured video <a href="${apod.url}">here</a></p>
+            <p>${apod.title}</p>
+            <p>${apod.explanation}</p>
+        `)
+    } else {
+        return (`
+            <img src="${apod.url}" height="350px" width="100%" />
+            <p>${apod.explanation}</p>
+        `)
+    }
+}
+
+// ------------------------------------------------------  API CALLS
+// Example API call
+const getImageOfTheDay = (state) => {
+    fetch(`https://api.nasa.gov/planetary/apod?api_key=${store.api_key}`)
+        .then(res => res.json())
+        .then(apod => updateStore(store, { apod }))
+        .then(getRoversData())
+}
+
+// Responsible to update current rovers into fully detailed rovers data
+const getRoversData = () => {
+    fetch(`https://api.nasa.gov/mars-photos/api/v1/rovers?api_key=${store.api_key}`)
+        .then(res => res.json())
+        .then(rovers => updateStore(store, rovers))
+}
+
+const getNewestImages = (currentIndex) => {
+    rovers = store.rovers
+    fetch(`https://api.nasa.gov/mars-photos/api/v1/rovers/${rovers[currentIndex].name.toLowerCase()}/photos?earth_date=${rovers[currentIndex].max_date}&api_key=${store.api_key}`)
+        .then(res => res.json())
+        .then(images => roverInfoPrint(rovers[currentIndex], images))
+}
