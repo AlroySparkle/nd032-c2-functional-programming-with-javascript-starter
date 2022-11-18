@@ -60,11 +60,9 @@ const roverInfoPrint = async(index) => {
 			images =store.rovers[index].images.map(
 			(image) =>{return `<img src="${image}" class="roverImage" />`}
 			).join('')
-			console.log(images)
 			return images
 		}
 		rover = store.rovers[index]
-		console.log(rover)
     document.getElementById("roverInfo").innerHTML = `rover "${rover.name}" has been launched in ${rover.launch_date}<br>
 Rover's maximum solar days are ${rover.max_sol} and it has captured ${rover.total_photos} since landing date in ${rover.landing_date}<br>
 rover's last images were in date ${rover.max_date} and it's current status is <b>${rover.status}</b><br>
@@ -118,7 +116,6 @@ const getNewestImages = async(currentIndex) => {
 	document.getElementById("roverInfo").innerHTML = `we are calling ${rovers[currentIndex].name}, please wait for it's response `;
 		const promise = await fetch(`http://localhost:3000/rovers/${rovers[currentIndex].name}`)
 			.then(res => res.json())
-		console.log(promise)
 		storePhotos(rovers[currentIndex],{images:promise.pics.latest_photos.map(photo=>{return photo.img_src})})
 		roverInfoPrint(currentIndex)
 }
