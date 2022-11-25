@@ -6,11 +6,16 @@ let store = {
 // add our markup to the page
 const root = document.getElementById('root')
 
+let immutable = Immutable.Map({test:"test"})
 
 const updateStore = (store, newState) => {
     store = Object.assign(store, newState)
     render(root, store)
     return Object.values(newState)[0]
+}
+
+const updateDate = (newDate) =>{
+	store = Object.assign(store,{date:newDate})
 }
 
 const storePhotos=(store,images)=>{
@@ -48,22 +53,26 @@ const App = (state) => {
 
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
+	date = new Date()
+	updateDate(date)
 	getRoversData()
 })
 
 // ------------------------------------------------------  COMPONENTS
 
+
+
 // This part used to print information related to the rover
-const roverInfoPrint = async(index) => {
-		
+
+
+const createDataOfRoverImages = (index) =>{	
 		const createImageGallery =(index)=>{
-			images =store.rovers[index].images.map(
+			return store.rovers[index].images.toJS().map(
 			(image) =>{return `<img src="${image}" class="roverImage" />`}
 			).join('')
-			return images
 		}
 		rover = store.rovers[index]
-    document.getElementById("roverInfo").innerHTML = `rover "${rover.name}" has been launched in ${rover.launch_date}<br>
+    return `rover "${rover.name}" has been launched in ${rover.launch_date}<br>
 Rover's maximum solar days are ${rover.max_sol} and it has captured ${rover.total_photos} since landing date in ${rover.landing_date}<br>
 rover's last images were in date ${rover.max_date} and it's current status is <b>${rover.status}</b><br>
 rover "${rover.name}" has ${rover.cameras.length} cameras<br>
@@ -72,6 +81,11 @@ some of rover's images:<br><br><br>
 ${createImageGallery(index)}
 </div>
 `
+}
+
+
+const roverInfoPrint = (index) => {
+		document.getElementById("roverInfo").innerHTML = createDataOfRoverImages(index)
 }
 
 
@@ -112,10 +126,20 @@ const getRoversData = () => {
 const getNewestImages = async(currentIndex) => {
 	resetClasses()
 	setSelectedClass(currentIndex)
-    rovers = store.rovers	
+    const rovers = store.rovers
+	const date = new Date();
+	//in case images is created for first time it will call the API and save it in immutable in case  
+	//it could reduce the number of calls to API which will reduce as well risk of reaching max call
+	//date is to ensure that images revealed in the same day for any chance of new images with new day
+	if(store.rovers[currentIndex].images==undefined || date.getDay()!=store.date.getDay()){	
 	document.getElementById("roverInfo").innerHTML = `we are calling ${rovers[currentIndex].name}, please wait for it's response `;
 		const promise = await fetch(`http://localhost:3000/rovers/${rovers[currentIndex].name}`)
 			.then(res => res.json())
-		storePhotos(rovers[currentIndex],{images:promise.pics.latest_photos.map(photo=>{return photo.img_src})})
-		roverInfoPrint(currentIndex)
+		storePhotos(rovers[currentIndex],{images:Immutable.List(promise.pics.latest_photos.map(photo=>{return photo.img_src}))})
+roverInfoPrint(currentIndex)
+updateDate(date)
+}
+else{
+document.getElementById("roverInfo").innerHTML = createDataOfRoverImages(currentIndex)
+}
 }
